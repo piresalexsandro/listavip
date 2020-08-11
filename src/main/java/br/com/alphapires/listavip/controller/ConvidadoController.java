@@ -11,14 +11,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import br.com.alphapires.enviadorEmail.service.EmailService;
 import br.com.alphapires.listavip.model.Convidado;
 import br.com.alphapires.listavip.repository.ConvidadoRepository;
+import br.com.alphapires.listavip.service.ConvidadoService;
 
 @Controller
 public class ConvidadoController {
 
 	@Autowired
-	private ConvidadoRepository repository;
+	private ConvidadoService service;
+
 
 	@RequestMapping("/")
 	public String index() {
@@ -28,7 +31,7 @@ public class ConvidadoController {
 	@RequestMapping("listaconvidados")
 	public String listaConvidados(Model model) {
 
-		List<Convidado> convidados = (List<Convidado>) repository.findAll();
+		List<Convidado> convidados = service.listar();
 
 		model.addAttribute("convidados", convidados);
 			
@@ -44,7 +47,9 @@ public class ConvidadoController {
 		convidado.setEmail(email);
 		convidado.setTelefone(telefone);
 
-		repository.save(convidado);
+		service.salvar(convidado);
+		
+		new EmailService().enviar(nome, email);
 
 		return listaConvidados(model);
 	}
